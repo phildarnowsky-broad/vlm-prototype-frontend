@@ -14,11 +14,35 @@ type ApiParams = {
   beacon: string[];
 };
 
-interface VariationSearchResults {}
+interface ResultSet {
+  id: string;
+  info: {
+    ac: number;
+    phenotype: string;
+  };
+}
+
+interface VariationSearchResults {
+  resultSets: ResultSet[];
+}
 
 export const Route = createLazyFileRoute("/")({
   component: Index,
 });
+
+const nodeNames: Record<string, string> = {
+  node1: "Node 1",
+  node2: "Node 2",
+  node3: "Node 3",
+  node4: "Node 4",
+  node5: "Node 5",
+  node6: "Node 6",
+};
+const nodeIds = Object.keys(nodeNames);
+
+function nodeName(id: string) {
+  nodeNames[id] ?? id;
+}
 
 // Temporary mock for fetch until API is ready to test against
 
@@ -100,7 +124,6 @@ const MOCK_API_RESPONSE = `
 	        "ac": 789,
 		"phenotype": "phenotype3"
 	    }
-
         }
     ]
 }
@@ -119,6 +142,15 @@ function fetchVariant(): Promise<VariationSearchResults> {
   return fakeFetch("fake_endpoint", {}).then((response) => {
     return response.json();
   });
+}
+
+function ResultItem({ resultSet }: { resultSet: ResultSet }) {
+  return (
+    <pre>
+      {resultSet.id}: AC {resultSet.info.ac}, phenotype{" "}
+      {resultSet.info.phenotype}
+    </pre>
+  );
 }
 
 function SearchResults({ apiParams }: { apiParams: ApiParams }) {
@@ -145,7 +177,10 @@ function SearchResults({ apiParams }: { apiParams: ApiParams }) {
     return <>Error: {JSON.stringify(query.error)}</>;
   }
 
-  return <pre>{JSON.stringify(query.data)}</pre>;
+  const resultSets = query.data.resultSets;
+  return resultSets.map((resultSet) => (
+    <ResultItem key={resultSet.id} resultSet={resultSet} />
+  ));
 }
 
 function Index() {
@@ -155,7 +190,7 @@ function Index() {
     pos: 55051215,
     ref: "G",
     alt: "GA",
-    beacon: [],
+    beacon: nodeIds,
   };
 
   const queryClient = new QueryClient();
