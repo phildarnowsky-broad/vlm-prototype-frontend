@@ -4,6 +4,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { useState } from "react";
 
 type ApiParams = {
   assembly: "GRCh37" | "GRCh38";
@@ -41,7 +42,7 @@ const nodeNames: Record<string, string> = {
 const nodeIds = Object.keys(nodeNames);
 
 function nodeName(id: string) {
-  nodeNames[id] ?? id;
+  return nodeNames[id] ?? id;
 }
 
 // Temporary mock for fetch until API is ready to test against
@@ -138,7 +139,7 @@ const fakeFetch: typeof fetch = (_input, _init) => {
   return new Promise((resolve) => resolve(response));
 };
 
-function fetchVariant(): Promise<VariationSearchResults> {
+async function fetchVariant(): Promise<VariationSearchResults> {
   return fakeFetch("fake_endpoint", {}).then((response) => {
     return response.json();
   });
@@ -147,7 +148,7 @@ function fetchVariant(): Promise<VariationSearchResults> {
 function ResultItem({ resultSet }: { resultSet: ResultSet }) {
   return (
     <pre>
-      {resultSet.id}: AC {resultSet.info.ac}, phenotype{" "}
+      {nodeName(resultSet.id)}: AC {resultSet.info.ac}, phenotype{" "}
       {resultSet.info.phenotype}
     </pre>
   );
@@ -178,28 +179,43 @@ function SearchResults({ apiParams }: { apiParams: ApiParams }) {
   }
 
   const resultSets = query.data.resultSets;
-  return resultSets.map((resultSet) => (
-    <ResultItem key={resultSet.id} resultSet={resultSet} />
-  ));
+  return (
+    <>
+      {resultSets.map((resultSet) => (
+        <ResultItem key={resultSet.id} resultSet={resultSet} />
+      ))}
+    </>
+  );
 }
 
 function Index() {
-  const apiParams: ApiParams = {
+  const mockApiParams = {
     assembly: "GRCh38",
     chrom: 1,
     pos: 55051215,
     ref: "G",
     alt: "GA",
     beacon: nodeIds,
-  };
+  } as const;
+  const [apiParams, setApiParams] = useState<ApiParams | null>(null);
 
   const queryClient = new QueryClient();
+  const queryInProgress = queryClient.isFetching() > 0;
 
-  return apiParams ? (
+  return (
     <QueryClientProvider client={queryClient}>
-      <SearchResults apiParams={apiParams} />
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!queryInProgress) {
+            setApiParams(mockApiParams);
+          }
+        }}
+      >
+        <input type="text" />
+        <button disabled={queryInProgress}>Search</button>
+      </form>
+      {apiParams && <SearchResults apiParams={apiParams} />}
     </QueryClientProvider>
-  ) : (
-    <>"input field here"</>
   );
 }
