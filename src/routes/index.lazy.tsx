@@ -204,18 +204,27 @@ function Index() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (!queryInProgress) {
-            setApiParams(mockApiParams);
-          }
-        }}
-      >
-        <input type="text" />
-        <button disabled={queryInProgress}>Search</button>
-      </form>
-      {apiParams && <SearchResults apiParams={apiParams} />}
+      <div className="p-10">
+        <div className="flex justify-center">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!queryInProgress) {
+                setApiParams(mockApiParams);
+              }
+            }}
+          >
+            <input className="border mr-5" type="text" />
+            <button
+              className="bg-cyan-300 p-2 border-2 rounded-full"
+              disabled={queryInProgress}
+            >
+              Search
+            </button>
+          </form>
+        </div>
+        {apiParams && <SearchResults apiParams={apiParams} />}
+      </div>
     </QueryClientProvider>
   );
 }
