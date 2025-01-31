@@ -12,10 +12,12 @@
     "typecheck:watch": "pnpm tsc -w --noEmit"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.0.2",
     "@tanstack/react-query": "^5.65.1",
     "@tanstack/react-router": "^1.98.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^4.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

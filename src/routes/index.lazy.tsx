@@ -147,10 +147,10 @@ async function fetchVariant(): Promise<VariationSearchResults> {
 
 function ResultItem({ resultSet }: { resultSet: ResultSet }) {
   return (
-    <pre>
-      {nodeName(resultSet.id)}: AC {resultSet.info.ac}, phenotype{" "}
-      {resultSet.info.phenotype}
-    </pre>
+    <div>
+      <span className="font-bold">{nodeName(resultSet.id)}:</span> AC{" "}
+      {resultSet.info.ac}, phenotype {resultSet.info.phenotype}
+    </div>
   );
 }
 
