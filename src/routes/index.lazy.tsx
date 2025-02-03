@@ -180,11 +180,11 @@ function SearchResults({ apiParams }: { apiParams: ApiParams }) {
 
   const resultSets = query.data.resultSets;
   return (
-    <>
+    <div>
       {resultSets.map((resultSet) => (
         <ResultItem key={resultSet.id} resultSet={resultSet} />
       ))}
-    </>
+    </div>
   );
 }
 
@@ -204,25 +204,27 @@ function Index() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="p-10">
-        <div className="flex justify-center">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!queryInProgress) {
-                setApiParams(mockApiParams);
-              }
-            }}
+      <div className="p-10 flex flex-col justify-center items-center">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!queryInProgress) {
+              setApiParams(mockApiParams);
+            }
+          }}
+        >
+          <input
+            className="border mr-5 p-3"
+            placeholder="Variant ID"
+            type="text"
+          />
+          <button
+            className="bg-cyan-200 p-2 border-1 rounded-full"
+            disabled={queryInProgress}
           >
-            <input className="border mr-5" type="text" />
-            <button
-              className="bg-cyan-300 p-2 border-2 rounded-full"
-              disabled={queryInProgress}
-            >
-              Search
-            </button>
-          </form>
-        </div>
+            Search
+          </button>
+        </form>
         {apiParams && <SearchResults apiParams={apiParams} />}
       </div>
     </QueryClientProvider>
