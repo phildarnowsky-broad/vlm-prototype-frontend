@@ -45,102 +45,10 @@ function nodeName(id: string) {
   return nodeNames[id] ?? id;
 }
 
-// Temporary mock for fetch until API is ready to test against
-
-const MOCK_API_RESPONSE = `
-{
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "meta": {
-        "apiVersion": "v2.0",
-        "beaconId": "org.example.beacon.v2",
-        "receivedRequestSummary": {
-            "apiVersion": "2.0",
-            "pagination": {
-                "limit": 10,
-                "skip": 0
-            },
-            "requestedSchemas": [
-                {
-                    "entityType": "EntryTypeB",
-                    "schema": "entry-typeB-schema-v1.0"
-                }
-            ]
-        },
-        "returnedSchemas": [
-            {
-                "entityType": "EntryTypeB",
-                "schema": "entry-typeB-schema-v1.0"
-            }
-        ]
-    },
-    "responseSummary": {
-        "exists": true
-    },
-    "resultSets": [
-        {
-            "exists": true,
-            "id": "node1",
-            "results": [
-                {
-                    "id": "BEex1",
-                    "name": "Basic Element example one"
-                }
-            ],
-            "resultsCount": 1,
-            "type": "dataset",
-	    "info": {
-	        "ac": 123,
-		"phenotype": "phenotype1"
-	    }
-        },
-        {
-            "exists": true,
-            "id": "node3",
-            "results": [
-                {
-                    "id": "BEex1",
-                    "name": "Basic Element example one"
-                }
-            ],
-            "resultsCount": 1,
-            "type": "dataset",
-	    "info": {
-	        "ac": 456,
-		"phenotype": "phenotype2"
-	    }
-
-        },
-	{
-            "exists": true,
-            "id": "node4",
-            "results": [
-                {
-                    "id": "BEex1",
-                    "name": "Basic Element example one"
-                }
-            ],
-            "resultsCount": 1,
-            "type": "dataset",
-	    "info": {
-	        "ac": 789,
-		"phenotype": "phenotype3"
-	    }
-        }
-    ]
-}
-`;
-
-const fakeFetch: typeof fetch = (_input, _init) => {
-  const response = new Response(MOCK_API_RESPONSE, {
-    status: 200,
-    statusText: "OK",
-  });
-
-  return new Promise((resolve) => resolve(response));
-};
+const VARIANT_ENDPOINT = "http://localhost:8000/variant/";
 
 async function fetchVariant(): Promise<VariationSearchResults> {
-  return fakeFetch("fake_endpoint", {}).then((response) => {
+  return fetch(VARIANT_ENDPOINT + "13-42298583-A-G", {}).then((response) => {
     return response.json();
   });
 }
