@@ -6,15 +6,6 @@ import {
 } from "@tanstack/react-query";
 import { useState } from "react";
 
-type ApiParams = {
-  assembly: "GRCh37" | "GRCh38";
-  chrom: number | "X" | "Y";
-  pos: number;
-  ref: string;
-  alt: string;
-  beacon: string[];
-};
-
 interface ResultSet {
   id: string;
   info: {
@@ -39,7 +30,6 @@ const nodeNames: Record<string, string> = {
   node5: "Node 5",
   node6: "Node 6",
 };
-const nodeIds = Object.keys(nodeNames);
 
 function nodeName(id: string) {
   return nodeNames[id] ?? id;
@@ -62,13 +52,9 @@ function ResultItem({ resultSet }: { resultSet: ResultSet }) {
   );
 }
 
-function SearchResults({ apiParams }: { apiParams: ApiParams }) {
-  const normalizedParams = {
-    ...apiParams,
-    beacon: [...apiParams.beacon].sort(),
-  };
+function SearchResults({ searchVariantId }: { searchVariantId: string }) {
   const query = useQuery({
-    queryKey: ["variant", normalizedParams],
+    queryKey: ["variant", searchVariantId],
     queryFn: fetchVariant,
     // tanstack-query is pretty aggressive by default about refetching, which
     // is probably good for most applications but isn't appropriate for data
@@ -96,16 +82,16 @@ function SearchResults({ apiParams }: { apiParams: ApiParams }) {
   );
 }
 
+// Workaround for the fact that the TS type for HTMLFormControlsCollection
+// doesn't allow for string indexing, although that's valid according to the
+// DOM API.
+
+interface FormElements extends HTMLFormControlsCollection {
+  "variant-id": HTMLInputElement;
+}
+
 function Index() {
-  const mockApiParams = {
-    assembly: "GRCh38",
-    chrom: 1,
-    pos: 55051215,
-    ref: "G",
-    alt: "GA",
-    beacon: nodeIds,
-  } as const;
-  const [apiParams, setApiParams] = useState<ApiParams | null>(null);
+  const [searchVariantId, setSearchVariantId] = useState<string | null>(null);
 
   const queryClient = new QueryClient();
 
@@ -115,17 +101,20 @@ function Index() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            setApiParams(mockApiParams);
+            const formElements = e.currentTarget.elements as FormElements;
+            const newVariantId = formElements["variant-id"].value;
+            setSearchVariantId(newVariantId);
           }}
         >
           <input
             className="border mr-5 p-3"
             placeholder="Variant ID"
             type="text"
+            name="variant-id"
           />
           <button className="p-2 border-1 rounded-full">Search</button>
         </form>
-        {apiParams && <SearchResults apiParams={apiParams} />}
+        {searchVariantId && <SearchResults searchVariantId={searchVariantId} />}
       </div>
     </QueryClientProvider>
   );
