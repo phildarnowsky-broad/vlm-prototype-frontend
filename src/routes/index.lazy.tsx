@@ -37,8 +37,10 @@ function nodeName(id: string) {
 
 const VARIANT_ENDPOINT = "http://localhost:8000/variant/";
 
-async function fetchVariant(): Promise<VariationSearchResults> {
-  return fetch(VARIANT_ENDPOINT + "13-42298583-A-G", {}).then((response) => {
+async function fetchVariant(
+  variantId: string
+): Promise<VariationSearchResults> {
+  return fetch(VARIANT_ENDPOINT + variantId, {}).then((response) => {
     return response.json();
   });
 }
@@ -55,7 +57,7 @@ function ResultItem({ resultSet }: { resultSet: ResultSet }) {
 function SearchResults({ searchVariantId }: { searchVariantId: string }) {
   const query = useQuery({
     queryKey: ["variant", searchVariantId],
-    queryFn: fetchVariant,
+    queryFn: () => fetchVariant(searchVariantId),
     // tanstack-query is pretty aggressive by default about refetching, which
     // is probably good for most applications but isn't appropriate for data
     // that changes as slowly as this data will
