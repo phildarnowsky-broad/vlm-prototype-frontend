@@ -108,7 +108,6 @@ function Index() {
   const [apiParams, setApiParams] = useState<ApiParams | null>(null);
 
   const queryClient = new QueryClient();
-  const queryInProgress = queryClient.isFetching() > 0;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -116,9 +115,7 @@ function Index() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (!queryInProgress) {
-              setApiParams(mockApiParams);
-            }
+            setApiParams(mockApiParams);
           }}
         >
           <input
@@ -126,12 +123,7 @@ function Index() {
             placeholder="Variant ID"
             type="text"
           />
-          <button
-            className="bg-cyan-200 p-2 border-1 rounded-full"
-            disabled={queryInProgress}
-          >
-            Search
-          </button>
+          <button className="p-2 border-1 rounded-full">Search</button>
         </form>
         {apiParams && <SearchResults apiParams={apiParams} />}
       </div>
