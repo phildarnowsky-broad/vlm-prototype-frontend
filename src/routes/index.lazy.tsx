@@ -92,8 +92,11 @@ function HostLink({ id }: { id: string }) {
     return null;
   }
   return (
-    <div className="text-xs">
-      Hosted by <a href="#">{name}</a>
+    <div className="text-xs text-gray-400">
+      Hosted by{" "}
+      <a className="text-blue-400" href="#">
+        {name}
+      </a>
     </div>
   );
 }
@@ -107,11 +110,7 @@ function AC({ ac }: { ac: number }) {
 }
 
 function Avatar({ id }: { id: string }) {
-  return (
-    <div className="absolute right-4">
-      <Avvvatars size={64} style="shape" value={nodeName(id)} />
-    </div>
-  );
+  return <Avvvatars size={64} style="shape" value={nodeName(id)} />;
 }
 
 function NodeName({ id }: { id: string }) {
@@ -120,11 +119,13 @@ function NodeName({ id }: { id: string }) {
 
 function ResultItem({ resultSet }: { resultSet: ResultSet }) {
   return (
-    <>
-      <div className="col-start-4 relative">
-        <Avatar id={resultSet.id} />
+    <div className="border border-teal-200 pt-2 pb-1 col-start-4 grid grid-cols-subgrid col-span-5">
+      <div className="relative">
+        <div className="absolute right-2">
+          <Avatar id={resultSet.id} />
+        </div>
       </div>
-      <div className="col-span-3">
+      <div className="col-span-2">
         <NodeName id={resultSet.id} />
         <HostLink id={resultSet.id} />
       </div>
@@ -134,7 +135,7 @@ function ResultItem({ resultSet }: { resultSet: ResultSet }) {
           <Associations associations={resultSet.info.associations} />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
