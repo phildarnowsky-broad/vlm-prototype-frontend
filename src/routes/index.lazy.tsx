@@ -77,11 +77,12 @@ async function fetchVariant(
 
 function Associations({ associations }: { associations: Association[] }) {
   return (
-    <>
+    <div>
+      <span className="font-bold">Associations:</span>
       {associations.map((association) => (
-        <span key={association.id}>{association.phenotype_description}</span>
+        <div key={association.id}>{association.phenotype_description}</div>
       ))}
-    </>
+    </div>
   );
 }
 
@@ -97,19 +98,37 @@ function HostLink({ id }: { id: string }) {
   );
 }
 
+function AC({ ac }: { ac: number }) {
+  return (
+    <div>
+      <span className="font-bold">AC</span>:{ac}
+    </div>
+  );
+}
+
 function Avatar({ id }: { id: string }) {
   return <Avvvatars style="shape" value={nodeName(id)} />;
 }
 
+function NodeName({ id }: { id: string }) {
+  return <div className="font-bold">{nodeName(id)}</div>;
+}
+
 function ResultItem({ resultSet }: { resultSet: ResultSet }) {
   return (
-    <div>
-      <Avatar id={resultSet.id} />
-      <span className="font-bold">{nodeName(resultSet.id)}:</span> AC{" "}
-      {resultSet.info.ac}
-      <Associations associations={resultSet.info.associations} />
-      <HostLink id={resultSet.id} />
-    </div>
+    <>
+      <div>
+        <Avatar id={resultSet.id} />
+      </div>
+      <div className="col-span-3">
+        <NodeName id={resultSet.id} />
+        <HostLink id={resultSet.id} />
+      </div>
+      <div>
+        <AC ac={resultSet.info.ac} />
+        <Associations associations={resultSet.info.associations} />
+      </div>{" "}
+    </>
   );
 }
 
@@ -135,7 +154,7 @@ function SearchResults({ searchVariantId }: { searchVariantId: string }) {
 
   const resultSets = query.data.resultSets;
   return (
-    <div>
+    <div className="grid grid-cols-5 gap-4">
       {resultSets.map((resultSet) => (
         <ResultItem key={resultSet.id} resultSet={resultSet} />
       ))}
