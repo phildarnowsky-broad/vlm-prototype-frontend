@@ -6,11 +6,18 @@ import {
 } from "@tanstack/react-query";
 import React, { useState } from "react";
 
+type Association = {
+  id: number;
+  p_value: number | null;
+  phenotype_id: string | null;
+  phenotype_description: string;
+};
+
 interface ResultSet {
   id: string;
   info: {
     ac: number;
-    phenotype: string;
+    associations: Association[];
   };
 }
 
@@ -22,17 +29,29 @@ export const Route = createLazyFileRoute("/")({
   component: Index,
 });
 
-const nodeNames: Record<string, string> = {
-  node1: "Node 1",
-  node2: "Node 2",
-  node3: "Node 3",
-  node4: "Node 4",
-  node5: "Node 5",
-  node6: "Node 6",
+type NodeMetadata = {
+  nodeName?: string;
+  hostingInstitutionName?: string;
 };
 
-function nodeName(id: string) {
-  return nodeNames[id] ?? id;
+const nodeMetadata: Record<string, NodeMetadata> = {
+  "1": { hostingInstitutionName: "Alpha Labs" },
+  "2": { hostingInstitutionName: "Boston Biopharmaceuticals" },
+  "3": { hostingInstitutionName: "Charles River Medical Center" },
+  "4": { hostingInstitutionName: "University of Winnemac" },
+  "5": {
+    hostingInstitutionName:
+      "Institute for the General Betterment of Everything",
+  },
+  "6": { hostingInstitutionName: "genetixco" },
+};
+
+function hostingInstitutionName(id: string): string | undefined {
+  return nodeMetadata[id]?.hostingInstitutionName;
+}
+
+function nodeName(id: string): string {
+  return nodeMetadata[id]?.nodeName ?? `Peer ${id}`;
 }
 
 const VARIANT_ENDPOINT = "http://localhost:8000/variant/";
@@ -45,11 +64,35 @@ async function fetchVariant(
   });
 }
 
+function Associations({ associations }: { associations: Association[] }) {
+  return (
+    <>
+      {associations.map((association) => (
+        <span key={association.id}>{association.phenotype_description}</span>
+      ))}
+    </>
+  );
+}
+
+function HostLink({ id }: { id: string }) {
+  const name = hostingInstitutionName(id);
+  if (name === undefined) {
+    return null;
+  }
+  return (
+    <>
+      Hosted by <a href="#">{name}</a>
+    </>
+  );
+}
+
 function ResultItem({ resultSet }: { resultSet: ResultSet }) {
   return (
     <div>
       <span className="font-bold">{nodeName(resultSet.id)}:</span> AC{" "}
-      {resultSet.info.ac}, phenotype {resultSet.info.phenotype}
+      {resultSet.info.ac}
+      <Associations associations={resultSet.info.associations} />
+      <HostLink id={resultSet.id} />
     </div>
   );
 }
