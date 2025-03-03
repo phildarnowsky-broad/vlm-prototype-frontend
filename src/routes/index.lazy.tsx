@@ -92,9 +92,9 @@ function HostLink({ id }: { id: string }) {
     return null;
   }
   return (
-    <>
+    <div className="text-xs">
       Hosted by <a href="#">{name}</a>
-    </>
+    </div>
   );
 }
 
@@ -107,17 +107,21 @@ function AC({ ac }: { ac: number }) {
 }
 
 function Avatar({ id }: { id: string }) {
-  return <Avvvatars style="shape" value={nodeName(id)} />;
+  return (
+    <div className="absolute right-4">
+      <Avvvatars size={64} style="shape" value={nodeName(id)} />
+    </div>
+  );
 }
 
 function NodeName({ id }: { id: string }) {
-  return <div className="font-bold">{nodeName(id)}</div>;
+  return <div className="font-bold text-xl">{nodeName(id)}</div>;
 }
 
 function ResultItem({ resultSet }: { resultSet: ResultSet }) {
   return (
     <>
-      <div>
+      <div className="col-start-4 relative">
         <Avatar id={resultSet.id} />
       </div>
       <div className="col-span-3">
@@ -125,9 +129,11 @@ function ResultItem({ resultSet }: { resultSet: ResultSet }) {
         <HostLink id={resultSet.id} />
       </div>
       <div>
-        <AC ac={resultSet.info.ac} />
-        <Associations associations={resultSet.info.associations} />
-      </div>{" "}
+        <div>
+          <AC ac={resultSet.info.ac} />
+          <Associations associations={resultSet.info.associations} />
+        </div>
+      </div>
     </>
   );
 }
@@ -154,11 +160,11 @@ function SearchResults({ searchVariantId }: { searchVariantId: string }) {
 
   const resultSets = query.data.resultSets;
   return (
-    <div className="grid grid-cols-5 gap-4">
+    <>
       {resultSets.map((resultSet) => (
         <ResultItem key={resultSet.id} resultSet={resultSet} />
       ))}
-    </div>
+    </>
   );
 }
 
@@ -177,8 +183,9 @@ function Index() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="p-10 flex flex-col justify-center items-center">
+      <div className="grid grid-cols-11">
         <form
+          className="col-start-5 col-span-3 pt-6 pb-6"
           onSubmit={(e) => {
             e.preventDefault();
             const formElements = e.currentTarget.elements as FormElements;
@@ -186,16 +193,18 @@ function Index() {
             setSearchVariantId(newVariantId);
           }}
         >
-          <input
-            className="border mr-5 p-3"
-            placeholder="Variant ID"
-            type="text"
-            name="variant-id"
-          />
-          <button className="p-2 border-1 rounded-full">Search</button>
+          <div>
+            <input
+              className="border mr-5 p-3"
+              placeholder="Variant ID"
+              type="text"
+              name="variant-id"
+            />
+            <button className="p-2 border-1 rounded-full">Search</button>
+          </div>
         </form>
         {searchVariantId && <SearchResults searchVariantId={searchVariantId} />}
-      </div>
+      </div>{" "}
     </QueryClientProvider>
   );
 }
