@@ -119,7 +119,7 @@ function NodeName({ id }: { id: string }) {
 
 function ResultItem({ resultSet }: { resultSet: ResultSet }) {
   return (
-    <div className="border border-teal-200 pt-2 pb-1 col-start-4 grid grid-cols-subgrid col-span-5">
+    <div className="border border-gray-200 pt-2 pb-1 col-start-4 grid grid-cols-subgrid col-span-5">
       <div className="relative">
         <div className="absolute right-2">
           <Avatar id={resultSet.id} />
