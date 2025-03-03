@@ -5,6 +5,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import React, { useState } from "react";
+import Avvvatars from "avvvatars-react";
 
 type Association = {
   id: number;
@@ -35,15 +36,25 @@ type NodeMetadata = {
 };
 
 const nodeMetadata: Record<string, NodeMetadata> = {
-  "1": { hostingInstitutionName: "Alpha Labs" },
-  "2": { hostingInstitutionName: "Boston Biopharmaceuticals" },
-  "3": { hostingInstitutionName: "Charles River Medical Center" },
-  "4": { hostingInstitutionName: "University of Winnemac" },
+  "1": { nodeName: "Alpha Gene Repo", hostingInstitutionName: "Alpha Labs" },
+  "2": {
+    nodeName: "Boston Genome Project",
+    hostingInstitutionName: "Boston Biopharmaceuticals",
+  },
+  "3": {
+    nodeName: "ManyVariants",
+    hostingInstitutionName: "Charles River Medical Center",
+  },
+  "4": {
+    nodeName: "Winnemac Biobank",
+    hostingInstitutionName: "University of Winnemac",
+  },
   "5": {
+    nodeName: "BIGDB",
     hostingInstitutionName:
       "Institute for the General Betterment of Everything",
   },
-  "6": { hostingInstitutionName: "genetixco" },
+  "6": { nodeName: "geneoid", hostingInstitutionName: "genetixco" },
 };
 
 function hostingInstitutionName(id: string): string | undefined {
@@ -86,9 +97,14 @@ function HostLink({ id }: { id: string }) {
   );
 }
 
+function Avatar({ id }: { id: string }) {
+  return <Avvvatars style="shape" value={nodeName(id)} />;
+}
+
 function ResultItem({ resultSet }: { resultSet: ResultSet }) {
   return (
     <div>
+      <Avatar id={resultSet.id} />
       <span className="font-bold">{nodeName(resultSet.id)}:</span> AC{" "}
       {resultSet.info.ac}
       <Associations associations={resultSet.info.associations} />

@@ -17,6 +17,9 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.98.0
         version: 1.98.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      avvvatars-react:
+        specifier: ^0.4.2
+        version: 0.4.2(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -891,6 +894,12 @@ packages:
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
+
+  avvvatars-react@0.4.2:
+    resolution: {integrity: sha512-D/bnSM+P6pQi71dFeFVqQsqmv+ct5XG7uO2lvJoiksALpXLd6kPgpRR1SUQxFZJkJNrkmg0NPgbhIgJgOsDYRQ==}
+    peerDependencies:
+      react: '>= 16'
+      react-dom: '>= 16'
 
   babel-dead-code-elimination@1.0.8:
     resolution: {integrity: sha512-og6HQERk0Cmm+nTT4Od2wbPtgABXFMPaHACjbKLulZIFMkYyXZLkUGuAxdgpMJBrxyt/XFpSz++lNzjbcMnPkQ==}
@@ -2272,6 +2281,14 @@ snapshots:
       picomatch: 2.3.1
 
   argparse@2.0.1: {}
+
+  avvvatars-react@0.4.2(csstype@3.1.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      goober: 2.1.16(csstype@3.1.3)
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - csstype
 
   babel-dead-code-elimination@1.0.8:
     dependencies:
