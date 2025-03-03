@@ -4,7 +4,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface ResultSet {
   id: string;

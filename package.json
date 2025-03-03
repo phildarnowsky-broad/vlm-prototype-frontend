@@ -8,8 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "typecheck": "pnpm tsc --noEmit",
-    "typecheck:watch": "pnpm tsc -w --noEmit"
+    "typecheck": "pnpm tsc --build --noEmit",
+    "typecheck:watch": "pnpm tsc --build -w --noEmit"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.2",
