@@ -184,6 +184,9 @@ function Index() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <h1 className="mt-4 mb-6 text-center text-8xl font-bold">
+        Federated VLM Prototype
+      </h1>
       <div className="grid grid-cols-11">
         <form
           className="col-start-5 col-span-3 pt-6 pb-6"
