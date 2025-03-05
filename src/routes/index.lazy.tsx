@@ -121,11 +121,9 @@ function NodeName({ id }: { id: string }) {
 
 function ResultItem({ resultSet }: { resultSet: ResultSet }) {
   return (
-    <div className="border border-gray-200 pt-2 pb-1 col-start-4 grid grid-cols-subgrid col-span-5">
-      <div className="relative">
-        <div className="absolute right-2">
-          <Avatar id={resultSet.id} />
-        </div>
+    <div className="border border-gray-200 p-2 col-start-4 grid grid-cols-subgrid col-span-5">
+      <div className="">
+        <Avatar id={resultSet.id} />
       </div>
       <div className="col-span-2">
         <NodeName id={resultSet.id} />
