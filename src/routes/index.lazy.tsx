@@ -74,6 +74,10 @@ async function fetchVariant(
 }
 
 function Associations({ associations }: { associations: Association[] }) {
+  if (associations.length === 0) {
+    return null;
+  }
+
   return (
     <div>
       <span className="font-bold">Associations:</span>
