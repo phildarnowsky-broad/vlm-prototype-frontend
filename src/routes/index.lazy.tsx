@@ -36,25 +36,23 @@ type NodeMetadata = {
 };
 
 const nodeMetadata: Record<string, NodeMetadata> = {
-  "1": { nodeName: "Alpha Gene Repo", hostingInstitutionName: "Alpha Labs" },
+  "1": { nodeName: "gnomAD", hostingInstitutionName: "Broad Institute" },
   "2": {
-    nodeName: "Boston Genome Project",
-    hostingInstitutionName: "Boston Biopharmaceuticals",
+    nodeName: "Autism Sequencing Consortium",
+    hostingInstitutionName: "Broad Institute",
   },
   "3": {
-    nodeName: "ManyVariants",
-    hostingInstitutionName: "Charles River Medical Center",
+    nodeName: "BipEx",
+    hostingInstitutionName: "Broad Institute",
   },
   "4": {
-    nodeName: "Winnemac Biobank",
-    hostingInstitutionName: "University of Winnemac",
+    nodeName: "Epi25",
+    hostingInstitutionName: "Epi25 Collaborative",
   },
   "5": {
-    nodeName: "BIGDB",
-    hostingInstitutionName:
-      "Institute for the General Betterment of Everything",
+    nodeName: "Schema",
+    hostingInstitutionName: "Broad Institute",
   },
-  "6": { nodeName: "geneoid", hostingInstitutionName: "genetixco" },
 };
 
 function hostingInstitutionName(id: string): string | undefined {
