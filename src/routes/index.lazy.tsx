@@ -35,6 +35,7 @@ type NodeMetadata = {
   hostingInstitutionName?: string;
 };
 
+// TODO: better way to get these than via hardcoded peer IDs
 const nodeMetadata: Record<string, NodeMetadata> = {
   "1": { nodeName: "gnomAD", hostingInstitutionName: "Broad Institute" },
   "2": {
@@ -112,6 +113,7 @@ function AC({ ac }: { ac: number }) {
 }
 
 function Avatar({ id }: { id: string }) {
+  // TODO: use real logos where available
   return <Avvvatars size={64} style="shape" value={nodeName(id)} />;
 }
 
@@ -151,6 +153,7 @@ function SearchResults({ searchVariantId }: { searchVariantId: string }) {
     refetchOnReconnect: false,
   });
 
+  // TODO: better layout for pending/error messages
   if (query.isPending) {
     return <>Pending</>;
   }
