@@ -1,10 +1,10 @@
+import React from "react";
 import { createLazyFileRoute } from "@tanstack/react-router";
 import {
   useQuery,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import React, { useState } from "react";
 import Avvvatars from "avvvatars-react";
 
 type Association = {
@@ -25,10 +25,6 @@ interface ResultSet {
 interface VariationSearchResults {
   resultSets: ResultSet[];
 }
-
-export const Route = createLazyFileRoute("/")({
-  component: Index,
-});
 
 type NodeMetadata = {
   nodeName?: string;
@@ -172,46 +168,19 @@ function SearchResults({ searchVariantId }: { searchVariantId: string }) {
   );
 }
 
-// Workaround for the fact that the TS type for HTMLFormControlsCollection
-// doesn't allow for string indexing, although that's valid according to the
-// DOM API.
-
-interface FormElements extends HTMLFormControlsCollection {
-  "variant-id": HTMLInputElement;
-}
-
-function Index() {
-  const [searchVariantId, setSearchVariantId] = useState<string | null>(null);
-
+const VariantResults = () => {
+  const { variantId } = Route.useParams();
   const queryClient = new QueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <h1 className="mt-4 mb-6 text-center text-8xl font-bold">
-        Federated VLM Prototype
-      </h1>
       <div className="grid grid-cols-11">
-        <form
-          className="col-start-5 col-span-3 pt-6 pb-6"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formElements = e.currentTarget.elements as FormElements;
-            const newVariantId = formElements["variant-id"].value;
-            setSearchVariantId(newVariantId);
-          }}
-        >
-          <div>
-            <input
-              className="border mr-5 p-3"
-              placeholder="Variant ID"
-              type="text"
-              name="variant-id"
-            />
-            <button className="p-2 border-1 rounded-full">Search</button>
-          </div>
-        </form>
-        {searchVariantId && <SearchResults searchVariantId={searchVariantId} />}
+        <SearchResults searchVariantId={variantId} />
       </div>{" "}
     </QueryClientProvider>
   );
-}
+};
+
+export const Route = createLazyFileRoute("/variant/$variantId")({
+  component: VariantResults,
+});

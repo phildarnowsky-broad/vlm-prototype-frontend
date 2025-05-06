@@ -16,25 +16,27 @@ import { Route as rootRoute } from './routes/__root'
 
 // Create Virtual Routes
 
-const IndexLazyImport = createFileRoute('/')()
+const VariantVariantIdLazyImport = createFileRoute('/variant/$variantId')()
 
 // Create/Update Routes
 
-const IndexLazyRoute = IndexLazyImport.update({
-  id: '/',
-  path: '/',
+const VariantVariantIdLazyRoute = VariantVariantIdLazyImport.update({
+  id: '/variant/$variantId',
+  path: '/variant/$variantId',
   getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+} as any).lazy(() =>
+  import('./routes/variant.$variantId.lazy').then((d) => d.Route),
+)
 
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexLazyImport
+    '/variant/$variantId': {
+      id: '/variant/$variantId'
+      path: '/variant/$variantId'
+      fullPath: '/variant/$variantId'
+      preLoaderRoute: typeof VariantVariantIdLazyImport
       parentRoute: typeof rootRoute
     }
   }
@@ -43,33 +45,33 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexLazyRoute
+  '/variant/$variantId': typeof VariantVariantIdLazyRoute
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexLazyRoute
+  '/variant/$variantId': typeof VariantVariantIdLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
-  '/': typeof IndexLazyRoute
+  '/variant/$variantId': typeof VariantVariantIdLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/variant/$variantId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/variant/$variantId'
+  id: '__root__' | '/variant/$variantId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
-  IndexLazyRoute: typeof IndexLazyRoute
+  VariantVariantIdLazyRoute: typeof VariantVariantIdLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexLazyRoute: IndexLazyRoute,
+  VariantVariantIdLazyRoute: VariantVariantIdLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -82,11 +84,11 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/variant/$variantId"
       ]
     },
-    "/": {
-      "filePath": "index.lazy.tsx"
+    "/variant/$variantId": {
+      "filePath": "variant.$variantId.lazy.tsx"
     }
   }
 }
