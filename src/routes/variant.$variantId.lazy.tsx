@@ -211,7 +211,11 @@ function SearchResultTable({
   );
 
   if (unfilteredResultSets.length === 0) {
-    return <>No unfiltered results were found for this query.</>;
+    return (
+      <div className="col-span-9">
+        No unfiltered results were found for this query.
+      </div>
+    );
   }
 
   return (
@@ -259,10 +263,11 @@ function SearchResultTable({
 
 function SearchResults({ searchVariantId }: { searchVariantId: string }) {
   const [filteredNodeIds, setFilteredNodeIds] = useState<NodeId[]>([]);
+  const normalizedVariantId = searchVariantId.toUpperCase();
 
   const query = useQuery({
-    queryKey: ["variant", searchVariantId],
-    queryFn: () => fetchVariant(searchVariantId),
+    queryKey: ["variant", normalizedVariantId],
+    queryFn: () => fetchVariant(normalizedVariantId),
     // tanstack-query is pretty aggressive by default about refetching, which
     // is probably good for most applications but isn't appropriate for data
     // that changes as slowly as this data will
@@ -271,13 +276,21 @@ function SearchResults({ searchVariantId }: { searchVariantId: string }) {
     refetchOnReconnect: false,
   });
 
-  // TODO: better layout for pending/error messages
   if (query.isPending) {
-    return <>Pending</>;
+    return (
+      <div className="col-span-12 text-center">
+        Searching for {normalizedVariantId}...
+      </div>
+    );
   }
 
   if (query.isError) {
-    return <>Error: {JSON.stringify(query.error)}</>;
+    return (
+      <div className="col-span-12 text-center">
+        There was an error looking up variant {normalizedVariantId}, please try
+        again later.
+      </div>
+    );
   }
 
   const resultSets = query.data.resultSets;

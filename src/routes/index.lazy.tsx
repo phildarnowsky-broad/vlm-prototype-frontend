@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { createLazyFileRoute } from "@tanstack/react-router";
 
 function Index() {
-  return <div>TK index</div>;
+  return "";
 }
 
 export const Route = createLazyFileRoute("/")({
