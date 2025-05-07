@@ -122,10 +122,6 @@ async function fetchVariant(
     .then((json) => parseVariantResult(json));
 }
 
-function NodeName({ id }: { id: string }) {
-  return <div className="font-bold text-xl">{nodeName(id)}</div>;
-}
-
 type SearchResultFiltersProps = {
   resultSets: ResultSet[];
   filteredNodeIds: NodeId[];
@@ -178,9 +174,14 @@ function SearchResultFilters({
   setFilteredNodeIds,
 }: SearchResultFiltersProps) {
   return (
-    <div>
-      Organization <FilterAllLink setFilteredNodeIds={setFilteredNodeIds} />
-      <FilterNoneLink setFilteredNodeIds={setFilteredNodeIds} />
+    <div className="col-span-3 border border-gray-300 p-2">
+      <div>
+        <h2 className="font-bold inline-block">Organization</h2>
+        <div className="inline-block text-cyan-500 float-right">
+          <FilterAllLink setFilteredNodeIds={setFilteredNodeIds} />{" "}
+          <FilterNoneLink setFilteredNodeIds={setFilteredNodeIds} />
+        </div>
+      </div>
       {nodeIdsInNodenameOrder.map((nodeId) => {
         return (
           <React.Fragment key={nodeId}>
@@ -191,8 +192,9 @@ function SearchResultFilters({
               onInput={() =>
                 toggleNodeFiltering(filteredNodeIds, setFilteredNodeIds, nodeId)
               }
-            />
+            />{" "}
             {nodeName(nodeId)}
+            <br />
           </React.Fragment>
         );
       })}
@@ -213,37 +215,45 @@ function SearchResultTable({
   }
 
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Variant ID</th>
-          <th>Peer name</th>
-          <th>Consequence</th>
-          <th>AC</th>
-          <th>Phenotypes</th>
-        </tr>
-      </thead>
-      <tbody>
-        {unfilteredResultSets.map((resultSet) => (
-          <tr key={`${resultSet.peerNodeId}:${resultSet.variantId}`}>
-            <td>{resultSet.variantId}</td>
-            <td>{nodeName(resultSet.peerNodeId)}</td>
-            <td>{resultSet.consequence}</td>
-            <td>{resultSet.ac}</td>
-            <td>
-              {resultSet.associations.map((association) => (
-                <React.Fragment key={association.id}>
-                  {association.phenotype_description}
-                  {association.p_value
-                    ? ` (P-value ${association.p_value})`
-                    : ""}
-                </React.Fragment>
-              ))}
-            </td>
+    <div className="col-span-9">
+      <table>
+        <thead>
+          <tr className="bg-gray-100">
+            <th className="text-left pt-2 pl-5 pb-5">Variant ID</th>
+            <th className="text-left pt-2 pb-5">Peer name</th>
+            <th className="text-left pt-2 pb-5">Consequence</th>
+            <th className="text-left pt-2 pb-5">AC</th>
+            <th className="text-left pt-2 pb-5 pr-5">Phenotypes</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {unfilteredResultSets.map((resultSet) => (
+            <tr
+              key={`${resultSet.peerNodeId}:${resultSet.variantId}`}
+              className="even:bg-gray-100"
+            >
+              <td className="pt-2 pb-2 pl-5 pr-10">{resultSet.variantId}</td>
+              <td className="pt-2 pb-2 pr-10">
+                {nodeName(resultSet.peerNodeId)}
+              </td>
+              <td className="pt-2 pb-2 pr-10">{resultSet.consequence}</td>
+              <td className="pt-2 pb-2 pr-10">{resultSet.ac}</td>
+              <td className="pt-2 pb-2 pr-5">
+                {resultSet.associations.map((association) => (
+                  <React.Fragment key={association.id}>
+                    {association.phenotype_description}
+                    {association.p_value
+                      ? ` (P-value ${association.p_value})`
+                      : ""}
+                    <br />
+                  </React.Fragment>
+                ))}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -292,7 +302,7 @@ const VariantResults = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="grid grid-cols-11">
+      <div className="grid grid-cols-12 gap-20 pt-4 ps-8 pe-8">
         <SearchResults searchVariantId={variantId} />
       </div>{" "}
     </QueryClientProvider>
