@@ -16,9 +16,16 @@ import { Route as rootRoute } from './routes/__root'
 
 // Create Virtual Routes
 
+const IndexLazyImport = createFileRoute('/')()
 const VariantVariantIdLazyImport = createFileRoute('/variant/$variantId')()
 
 // Create/Update Routes
+
+const IndexLazyRoute = IndexLazyImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 
 const VariantVariantIdLazyRoute = VariantVariantIdLazyImport.update({
   id: '/variant/$variantId',
@@ -32,6 +39,13 @@ const VariantVariantIdLazyRoute = VariantVariantIdLazyImport.update({
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexLazyImport
+      parentRoute: typeof rootRoute
+    }
     '/variant/$variantId': {
       id: '/variant/$variantId'
       path: '/variant/$variantId'
@@ -45,32 +59,37 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexLazyRoute
   '/variant/$variantId': typeof VariantVariantIdLazyRoute
 }
 
 export interface FileRoutesByTo {
+  '/': typeof IndexLazyRoute
   '/variant/$variantId': typeof VariantVariantIdLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
+  '/': typeof IndexLazyRoute
   '/variant/$variantId': typeof VariantVariantIdLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/variant/$variantId'
+  fullPaths: '/' | '/variant/$variantId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/variant/$variantId'
-  id: '__root__' | '/variant/$variantId'
+  to: '/' | '/variant/$variantId'
+  id: '__root__' | '/' | '/variant/$variantId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
+  IndexLazyRoute: typeof IndexLazyRoute
   VariantVariantIdLazyRoute: typeof VariantVariantIdLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexLazyRoute: IndexLazyRoute,
   VariantVariantIdLazyRoute: VariantVariantIdLazyRoute,
 }
 
@@ -84,8 +103,12 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
+        "/",
         "/variant/$variantId"
       ]
+    },
+    "/": {
+      "filePath": "index.lazy.tsx"
     },
     "/variant/$variantId": {
       "filePath": "variant.$variantId.lazy.tsx"

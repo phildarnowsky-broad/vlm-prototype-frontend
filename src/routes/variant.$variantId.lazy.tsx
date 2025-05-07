@@ -1,25 +1,23 @@
-import React from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { createLazyFileRoute } from "@tanstack/react-router";
 import {
   useQuery,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
-import Avvvatars from "avvvatars-react";
 
 type Association = {
   id: number;
   p_value: number | null;
-  phenotype_id: string | null;
   phenotype_description: string;
 };
 
 interface ResultSet {
-  id: string;
-  info: {
-    ac: number;
-    associations: Association[];
-  };
+  variantId: string;
+  peerNodeId: string;
+  associations: Association[];
+  ac: number;
+  consequence: string;
 }
 
 interface VariationSearchResults {
@@ -31,8 +29,10 @@ type NodeMetadata = {
   hostingInstitutionName?: string;
 };
 
+type NodeId = string;
+
 // TODO: better way to get these than via hardcoded peer IDs
-const nodeMetadata: Record<string, NodeMetadata> = {
+const nodeMetadata: Record<NodeId, NodeMetadata> = {
   "1": { nodeName: "gnomAD", hostingInstitutionName: "Broad Institute" },
   "2": {
     nodeName: "Autism Sequencing Consortium",
@@ -52,92 +52,204 @@ const nodeMetadata: Record<string, NodeMetadata> = {
   },
 };
 
-function hostingInstitutionName(id: string): string | undefined {
-  return nodeMetadata[id]?.hostingInstitutionName;
-}
-
 function nodeName(id: string): string {
   return nodeMetadata[id]?.nodeName ?? `Peer ${id}`;
 }
 
+const nodeIdsInNodenameOrder: NodeId[] = Object.keys(nodeMetadata).sort(
+  (nodeId1, nodeId2) => nodeName(nodeId1).localeCompare(nodeName(nodeId2))
+);
+
 const VARIANT_ENDPOINT = "http://localhost:8000/variant/";
+
+interface VariantResultJson {
+  resultSets: {
+    id: string;
+    results: { id: string }[];
+    info: {
+      ac: number;
+      consequence: string;
+      associations: Association[];
+    };
+  }[];
+}
+
+const CONSEQUENCE_TRANSLATIONS: Record<string, string> = {
+  "3_prime_UTR_variant": "3' UTR variant",
+  "5_prime_UTR_variant": "5' UTR variant",
+  "missense_variant_mpc_<2": "Missense variant (MPC < 2)",
+  "missense_variant_mpc_2-3": "Missense variant (2 <= MPC < 3)",
+  "missense_variant_mpc_>=3": "Missense variant (MPC > 3)",
+  NA: "N/A",
+  non_coding: "Non-coding",
+  non_coding_transcript_exon_variant: "Non-coding transcript exon variant",
+  pLof: "pLoF",
+  ptv: "PTV",
+} as const;
+
+function prettyConsequence(rawConsequence: string): string {
+  if (CONSEQUENCE_TRANSLATIONS[rawConsequence]) {
+    return CONSEQUENCE_TRANSLATIONS[rawConsequence];
+  }
+
+  const [firstWord, ...remainingWords] = rawConsequence.split("_");
+  const firstWordUppercased =
+    firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+  return [firstWordUppercased, ...remainingWords].join(" ");
+}
+
+function parseVariantResult(json: VariantResultJson): VariationSearchResults {
+  return {
+    resultSets: json.resultSets.map((jsonResultSet) => {
+      return {
+        variantId: jsonResultSet.results[0].id,
+        peerNodeId: jsonResultSet.id,
+        associations: jsonResultSet.info.associations,
+        ac: jsonResultSet.info.ac,
+        consequence: prettyConsequence(jsonResultSet.info.consequence),
+      };
+    }),
+  };
+}
 
 async function fetchVariant(
   variantId: string
 ): Promise<VariationSearchResults> {
-  return fetch(VARIANT_ENDPOINT + variantId, {}).then((response) => {
-    return response.json();
-  });
-}
-
-function Associations({ associations }: { associations: Association[] }) {
-  if (associations.length === 0) {
-    return null;
-  }
-
-  return (
-    <div>
-      <span className="font-bold">Associations:</span>
-      {associations.map((association) => (
-        <div key={association.id}>{association.phenotype_description}</div>
-      ))}
-    </div>
-  );
-}
-
-function HostLink({ id }: { id: string }) {
-  const name = hostingInstitutionName(id);
-  if (name === undefined) {
-    return null;
-  }
-  return (
-    <div className="text-xs text-gray-400">
-      Hosted by{" "}
-      <a className="text-blue-400" href="#">
-        {name}
-      </a>
-    </div>
-  );
-}
-
-function AC({ ac }: { ac: number }) {
-  return (
-    <div>
-      <span className="font-bold">AC</span>:{ac}
-    </div>
-  );
-}
-
-function Avatar({ id }: { id: string }) {
-  // TODO: use real logos where available
-  return <Avvvatars size={64} style="shape" value={nodeName(id)} />;
+  return fetch(VARIANT_ENDPOINT + variantId, {})
+    .then((response) => {
+      return response.json();
+    })
+    .then((json) => parseVariantResult(json));
 }
 
 function NodeName({ id }: { id: string }) {
   return <div className="font-bold text-xl">{nodeName(id)}</div>;
 }
 
-function ResultItem({ resultSet }: { resultSet: ResultSet }) {
+type SearchResultFiltersProps = {
+  resultSets: ResultSet[];
+  filteredNodeIds: NodeId[];
+  setFilteredNodeIds: Dispatch<SetStateAction<NodeId[]>>;
+};
+
+type SearchResultTableProps = {
+  resultSets: ResultSet[];
+  filteredNodeIds: NodeId[];
+};
+
+function toggleNodeFiltering(
+  filteredNodeIds: NodeId[],
+  setFilteredNodeIds: Dispatch<SetStateAction<NodeId[]>>,
+  toggledNodeId: NodeId
+) {
+  if (filteredNodeIds.includes(toggledNodeId)) {
+    setFilteredNodeIds(
+      filteredNodeIds.filter(
+        (filteredNodeId) => filteredNodeId !== toggledNodeId
+      )
+    );
+  } else {
+    setFilteredNodeIds([...filteredNodeIds, toggledNodeId]);
+  }
+}
+
+type FilterLinkProps = {
+  setFilteredNodeIds: Dispatch<SetStateAction<NodeId[]>>;
+};
+
+function FilterNoneLink({ setFilteredNodeIds }: FilterLinkProps) {
   return (
-    <div className="border border-gray-200 p-4 col-start-4 grid grid-cols-subgrid col-span-5">
-      <div className="">
-        <Avatar id={resultSet.id} />
-      </div>
-      <div className="col-span-2">
-        <NodeName id={resultSet.id} />
-        <HostLink id={resultSet.id} />
-      </div>
-      <div>
-        <div>
-          <AC ac={resultSet.info.ac} />
-          <Associations associations={resultSet.info.associations} />
-        </div>
-      </div>
+    <a href="#" onClick={() => setFilteredNodeIds(nodeIdsInNodenameOrder)}>
+      None
+    </a>
+  );
+}
+
+function FilterAllLink({ setFilteredNodeIds }: FilterLinkProps) {
+  return (
+    <a href="#" onClick={() => setFilteredNodeIds([])}>
+      All
+    </a>
+  );
+}
+
+function SearchResultFilters({
+  filteredNodeIds,
+  setFilteredNodeIds,
+}: SearchResultFiltersProps) {
+  return (
+    <div>
+      Organization <FilterAllLink setFilteredNodeIds={setFilteredNodeIds} />
+      <FilterNoneLink setFilteredNodeIds={setFilteredNodeIds} />
+      {nodeIdsInNodenameOrder.map((nodeId) => {
+        return (
+          <React.Fragment key={nodeId}>
+            <input
+              type="checkbox"
+              readOnly
+              checked={!filteredNodeIds.includes(nodeId)}
+              onInput={() =>
+                toggleNodeFiltering(filteredNodeIds, setFilteredNodeIds, nodeId)
+              }
+            />
+            {nodeName(nodeId)}
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }
 
+function SearchResultTable({
+  resultSets,
+  filteredNodeIds,
+}: SearchResultTableProps) {
+  const unfilteredResultSets = resultSets.filter(
+    (resultSet) => !filteredNodeIds.includes(resultSet.peerNodeId)
+  );
+
+  if (unfilteredResultSets.length === 0) {
+    return <>No unfiltered results were found for this query.</>;
+  }
+
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th>Variant ID</th>
+          <th>Peer name</th>
+          <th>Consequence</th>
+          <th>AC</th>
+          <th>Phenotypes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {unfilteredResultSets.map((resultSet) => (
+          <tr key={`${resultSet.peerNodeId}:${resultSet.variantId}`}>
+            <td>{resultSet.variantId}</td>
+            <td>{nodeName(resultSet.peerNodeId)}</td>
+            <td>{resultSet.consequence}</td>
+            <td>{resultSet.ac}</td>
+            <td>
+              {resultSet.associations.map((association) => (
+                <React.Fragment key={association.id}>
+                  {association.phenotype_description}
+                  {association.p_value
+                    ? ` (P-value ${association.p_value})`
+                    : ""}
+                </React.Fragment>
+              ))}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 function SearchResults({ searchVariantId }: { searchVariantId: string }) {
+  const [filteredNodeIds, setFilteredNodeIds] = useState<NodeId[]>([]);
+
   const query = useQuery({
     queryKey: ["variant", searchVariantId],
     queryFn: () => fetchVariant(searchVariantId),
@@ -161,9 +273,15 @@ function SearchResults({ searchVariantId }: { searchVariantId: string }) {
   const resultSets = query.data.resultSets;
   return (
     <>
-      {resultSets.map((resultSet) => (
-        <ResultItem key={resultSet.id} resultSet={resultSet} />
-      ))}
+      <SearchResultFilters
+        resultSets={resultSets}
+        filteredNodeIds={filteredNodeIds}
+        setFilteredNodeIds={setFilteredNodeIds}
+      />
+      <SearchResultTable
+        resultSets={resultSets}
+        filteredNodeIds={filteredNodeIds}
+      />
     </>
   );
 }
