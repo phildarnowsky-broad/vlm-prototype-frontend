@@ -64,7 +64,6 @@ function GeneSearchResults({ resultSets, geneSymbol }: GeneSearchResultsProps) {
       </div>
     );
   }
-  console.log(resultSets);
   const resultSet = resultSets[0];
   const { variants } = resultSet;
 
