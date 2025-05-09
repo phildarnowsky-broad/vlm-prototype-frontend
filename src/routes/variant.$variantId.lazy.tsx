@@ -4,8 +4,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import useDefaultQuery from "../hooks/useDefaultQuery";
 import SearchResults, {
   ResultSet,
-  parseVariantResult,
+  parseVariantResults,
   VariantSearchResults,
+  VariantResultsJson,
 } from "../components/SearchResults";
 
 export type Association = {
@@ -25,11 +26,11 @@ async function fetchVariant(variantId: string): Promise<VariantSearchResults> {
     .then((response) => {
       return response.json();
     })
-    .then((json) => parseVariantResult(json));
+    .then((json: VariantResultsJson) => parseVariantResults(json.resultSets));
 }
 
 function VariantSearch({ searchVariantId }: { searchVariantId: string }) {
-  const normalizedVariantId = searchVariantId.toUpperCase();
+  const normalizedVariantId = searchVariantId.toUpperCase().trim();
 
   const query = useDefaultQuery({
     queryKey: ["variant", normalizedVariantId],

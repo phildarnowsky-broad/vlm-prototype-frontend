@@ -20,17 +20,17 @@ export interface VariantSearchResults {
   resultSets: ResultSet[];
 }
 
-interface VariantResultJson {
-  resultSets: {
-    id: string;
-    results: { id: string }[];
-    info: {
-      ac: number;
-      consequence: string;
-      associations: Association[];
-    };
-  }[];
+export interface VariantResultJson {
+  id: string;
+  results: { id: string }[];
+  info: {
+    ac: number;
+    consequence: string;
+    associations: Association[];
+  };
 }
+
+export type VariantResultsJson = { resultSets: VariantResultJson[] };
 
 // TODO: better way to get these than via hardcoded peer IDs
 const nodeMetadata: Record<NodeId, NodeMetadata> = {
@@ -96,11 +96,11 @@ function prettyConsequence(rawConsequence: string): string {
   return [firstWordUppercased, ...remainingWords].join(" ");
 }
 
-export function parseVariantResult(
-  json: VariantResultJson
+export function parseVariantResults(
+  resultSets: VariantResultJson[]
 ): VariantSearchResults {
   return {
-    resultSets: json.resultSets.map((jsonResultSet) => {
+    resultSets: resultSets.map((jsonResultSet) => {
       return {
         variantId: jsonResultSet.results[0].id,
         peerNodeId: jsonResultSet.id,

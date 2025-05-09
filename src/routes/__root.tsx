@@ -11,6 +11,10 @@ interface FormElements extends HTMLFormControlsCollection {
   "search-term": HTMLInputElement;
 }
 
+function looksLikeVariantId(searchTerm: string) {
+  return searchTerm.trim().match(/.+-\d+-.+-.+/);
+}
+
 export const Route = createRootRoute({
   component: () => {
     const navigate = useNavigate();
@@ -26,10 +30,18 @@ export const Route = createRootRoute({
               e.preventDefault();
               const formElements = e.currentTarget.elements as FormElements;
               const newSearchTerm = formElements["search-term"].value;
-              navigate({
-                to: "/variant/$variantId",
-                params: { variantId: newSearchTerm },
-              });
+
+              if (looksLikeVariantId(newSearchTerm)) {
+                navigate({
+                  to: "/variant/$variantId",
+                  params: { variantId: newSearchTerm },
+                });
+              } else {
+                navigate({
+                  to: "/gene/$geneSymbol",
+                  params: { geneSymbol: newSearchTerm },
+                });
+              }
             }}
           >
             <div>
