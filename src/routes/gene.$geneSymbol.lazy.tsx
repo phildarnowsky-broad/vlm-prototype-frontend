@@ -7,15 +7,29 @@ import SearchResults, {
   VariantResultJson,
   VariantSearchResults,
 } from "../components/SearchResults";
+import { RegionViewer, PositionAxisTrack } from "@gnomad/region-viewer";
+// @ts-ignore (we don't care about missing declarations and skipLibCheck is not working for whatever reason)
+import { RegionsTrack } from "@gnomad/track-regions";
 
 const GENE_ENDPOINT = "http://localhost:8000/gene/";
 
-type GeneResultSet = { geneSymbol: string; variants: VariantSearchResults };
+type Exon = {
+  start: number;
+  stop: number;
+  feature_type: string;
+};
+
+type GeneResultSet = {
+  geneSymbol: string;
+  variants: VariantSearchResults;
+  exons: Exon[];
+};
 
 interface GeneResultJson {
   info: {
     gene_symbol: string;
     variants: VariantResultJson[];
+    exons: Exon[];
   };
 }
 
@@ -31,7 +45,7 @@ type GeneResponseWithResults = {
 function parseGeneResultSet(json: GeneResultJson): GeneResultSet {
   const { info } = json;
   const variants = parseVariantResults(info.variants);
-  return { geneSymbol: info.gene_symbol, variants };
+  return { geneSymbol: info.gene_symbol, variants, exons: info.exons };
 }
 
 function parseGeneResponse(json: GeneResultsJson): GeneResponseWithResults {
@@ -65,12 +79,35 @@ function GeneSearchResults({ resultSets, geneSymbol }: GeneSearchResultsProps) {
     );
   }
   const resultSet = resultSets[0];
-  const { variants } = resultSet;
+  const { variants, exons } = resultSet;
+  const codingExons = exons.filter((exon) => exon.feature_type === "CDS");
 
   return (
     <>
       <div className="col-start-4 col-span-9 text-center text-xl">
-        Variants for gene <span className="font-bold">{geneSymbol}</span>
+        {exons.length > 1 && (
+          <>
+            <div className="mb-5">
+              Coding exons for gene{" "}
+              <span className="font-bold">{geneSymbol}</span>
+            </div>
+            <RegionViewer
+              leftPanelWidth={0}
+              rightPanelWidth={0}
+              width={800}
+              regions={exons}
+            >
+              <RegionsTrack regions={codingExons} height={10} />
+              <div className="mt-2">
+                <PositionAxisTrack />
+              </div>
+            </RegionViewer>
+          </>
+        )}
+
+        <div className="mt-5">
+          Variants for gene <span className="font-bold">{geneSymbol}</span>
+        </div>
       </div>
       <SearchResults resultSets={variants.resultSets} />
     </>
