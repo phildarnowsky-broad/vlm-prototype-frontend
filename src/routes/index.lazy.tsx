@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { createLazyRoute } from "@tanstack/react-router";
 
 function Index() {
   return "";
 }
 
-export const Route = createLazyFileRoute("/")({
+export const Route = createLazyRoute("/")({
   component: Index,
 });

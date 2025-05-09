@@ -18,6 +18,7 @@ import { Route as rootRoute } from './routes/__root'
 
 const IndexLazyImport = createFileRoute('/')()
 const VariantVariantIdLazyImport = createFileRoute('/variant/$variantId')()
+const GeneGeneSymbolLazyImport = createFileRoute('/gene/$geneSymbol')()
 
 // Create/Update Routes
 
@@ -35,6 +36,14 @@ const VariantVariantIdLazyRoute = VariantVariantIdLazyImport.update({
   import('./routes/variant.$variantId.lazy').then((d) => d.Route),
 )
 
+const GeneGeneSymbolLazyRoute = GeneGeneSymbolLazyImport.update({
+  id: '/gene/$geneSymbol',
+  path: '/gene/$geneSymbol',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() =>
+  import('./routes/gene.$geneSymbol.lazy').then((d) => d.Route),
+)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -44,6 +53,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/gene/$geneSymbol': {
+      id: '/gene/$geneSymbol'
+      path: '/gene/$geneSymbol'
+      fullPath: '/gene/$geneSymbol'
+      preLoaderRoute: typeof GeneGeneSymbolLazyImport
       parentRoute: typeof rootRoute
     }
     '/variant/$variantId': {
@@ -60,36 +76,41 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
+  '/gene/$geneSymbol': typeof GeneGeneSymbolLazyRoute
   '/variant/$variantId': typeof VariantVariantIdLazyRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
+  '/gene/$geneSymbol': typeof GeneGeneSymbolLazyRoute
   '/variant/$variantId': typeof VariantVariantIdLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
+  '/gene/$geneSymbol': typeof GeneGeneSymbolLazyRoute
   '/variant/$variantId': typeof VariantVariantIdLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/variant/$variantId'
+  fullPaths: '/' | '/gene/$geneSymbol' | '/variant/$variantId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/variant/$variantId'
-  id: '__root__' | '/' | '/variant/$variantId'
+  to: '/' | '/gene/$geneSymbol' | '/variant/$variantId'
+  id: '__root__' | '/' | '/gene/$geneSymbol' | '/variant/$variantId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
+  GeneGeneSymbolLazyRoute: typeof GeneGeneSymbolLazyRoute
   VariantVariantIdLazyRoute: typeof VariantVariantIdLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  GeneGeneSymbolLazyRoute: GeneGeneSymbolLazyRoute,
   VariantVariantIdLazyRoute: VariantVariantIdLazyRoute,
 }
 
@@ -104,11 +125,15 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/gene/$geneSymbol",
         "/variant/$variantId"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
+    },
+    "/gene/$geneSymbol": {
+      "filePath": "gene.$geneSymbol.lazy.tsx"
     },
     "/variant/$variantId": {
       "filePath": "variant.$variantId.lazy.tsx"
