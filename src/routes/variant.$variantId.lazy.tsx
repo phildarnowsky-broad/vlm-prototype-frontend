@@ -65,7 +65,7 @@ const VariantResults = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="grid grid-cols-12 gap-20 pt-4 ps-8 pe-8">
+      <div className="grid grid-cols-12 gap-x-20 pt-4 ps-8 pe-8">
         <VariantSearch searchVariantId={variantId} />
       </div>{" "}
     </QueryClientProvider>

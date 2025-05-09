@@ -31,7 +31,7 @@ type GeneResponseWithResults = {
 function parseGeneResultSet(json: GeneResultJson): GeneResultSet {
   const { info } = json;
   const variants = parseVariantResults(info.variants);
-  return { geneSymbol: info.gene_symbol, variants }; //TK
+  return { geneSymbol: info.gene_symbol, variants };
 }
 
 function parseGeneResponse(json: GeneResultsJson): GeneResponseWithResults {
@@ -50,9 +50,19 @@ async function fetchGene(variantId: string): Promise<GeneResponseWithResults> {
     .then((json) => parseGeneResponse(json));
 }
 
-function GeneSearchResults({ resultSets }: { resultSets: GeneResultSet[] }) {
+type GeneSearchResultsProps = {
+  resultSets: GeneResultSet[];
+  geneSymbol: string;
+};
+
+function GeneSearchResults({ resultSets, geneSymbol }: GeneSearchResultsProps) {
   if (resultSets.length === 0) {
-    return <>TK no gene results</>;
+    return (
+      <div className="col-span-12 text-center">
+        No gene with symbol <span className="font-bold">{geneSymbol}</span> was
+        found.
+      </div>
+    );
   }
   console.log(resultSets);
   const resultSet = resultSets[0];
@@ -60,6 +70,9 @@ function GeneSearchResults({ resultSets }: { resultSets: GeneResultSet[] }) {
 
   return (
     <>
+      <div className="col-start-4 col-span-9 text-center text-xl">
+        Variants for gene <span className="font-bold">{geneSymbol}</span>
+      </div>
       <SearchResults resultSets={variants.resultSets} />
     </>
   );
@@ -91,7 +104,14 @@ function GeneSearch({ geneSymbol }: { geneSymbol: string }) {
 
   const { resultSets } = query.data as GeneResponseWithResults;
 
-  return <GeneSearchResults resultSets={resultSets} />;
+  return (
+    <>
+      <GeneSearchResults
+        resultSets={resultSets}
+        geneSymbol={normalizedGeneSymbol}
+      />
+    </>
+  );
 }
 
 const GeneResults = () => {
@@ -99,7 +119,7 @@ const GeneResults = () => {
   const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="grid grid-cols-12 gap-20 pt-4 ps-8 pe-8">
+      <div className="grid grid-cols-12 gap-x-20 gap-y-4 pt-4 ps-8 pe-8">
         <GeneSearch geneSymbol={geneSymbol} />
       </div>{" "}
     </QueryClientProvider>
