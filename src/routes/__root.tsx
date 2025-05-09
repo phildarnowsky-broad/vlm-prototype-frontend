@@ -47,7 +47,7 @@ export const Route = createRootRoute({
             <div>
               <input
                 className="border mr-5 p-3"
-                placeholder="Variant ID"
+                placeholder="Variant ID or gene symbol"
                 type="text"
                 name="search-term"
               />
